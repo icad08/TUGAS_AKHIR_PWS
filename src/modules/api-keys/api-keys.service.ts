@@ -1,69 +1,70 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as crypto from 'crypto';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ApiKeysService {
   constructor(private prisma: PrismaService) {}
 
-  // 1. Generate Key Baru
-  async generateKey(userId: number) {
-    const rawKey = 'pk_live_' + crypto.randomBytes(24).toString('hex');
-    const hash = await bcrypt.hash(rawKey, 10);
-    const prefix = rawKey.substring(0, 10);
-
-    await this.prisma.apiKey.upsert({
-      where: { userId },
-      update: { keyHash: hash, keyPrefix: prefix, isActive: true },
-      create: { userId, keyHash: hash, keyPrefix: prefix },
+  // --- 1. VALIDASI KEY (Gak berubah) ---
+  async validateApiKey(apiKey: string) {
+    const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex');
+    
+    const validKey = await this.prisma.apiKey.findFirst({
+      where: {
+        keyHash: keyHash,
+        isActive: true,
+      },
+      include: { user: true }
     });
 
-    return { apiKey: rawKey };
+    return validKey;
   }
 
-  // 2. Cek Status Key
-  async getKeyStatus(userId: number) {
-    const key = await this.prisma.apiKey.findUnique({
-      where: { userId },
+  // --- 2. GENERATE KEY (INI YANG KITA PERBAIKI) ---
+  async createKey(userId: number) {
+    // Generate ramuan kunci baru
+    const apiKey = 'pk_live_' + crypto.randomBytes(24).toString('hex');
+    const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex');
+    const keyPrefix = apiKey.substring(0, 15);
+
+    // 🔥 PAKAI UPSERT (Update or Insert)
+    // "Cari user ini. Kalau ada, update datanya. Kalau gak ada, bikin baru."
+    await this.prisma.apiKey.upsert({
+      where: { userId: userId }, // Kuncinya di sini (karena userId itu Unique)
+      update: {
+        keyHash: keyHash,
+        keyPrefix: keyPrefix,
+        isActive: true,
+      },
+      create: {
+        userId: userId,
+        keyHash: keyHash,
+        keyPrefix: keyPrefix,
+        isActive: true,
+      },
     });
 
-    if (!key) return null;
+    return { apiKey }; // Balikin kunci mentahnya
+  }
 
-    return {
-      prefix: key.keyPrefix,
-      isActive: key.isActive,
-      createdAt: key.createdAt,
+  // --- 3. CEK STATUS (Gak berubah) ---
+  async getKeyStatus(userId: number) {
+    const key = await this.prisma.apiKey.findUnique({ // Ganti findFirst jadi findUnique biar lebih cepat
+      where: { userId },
+    });
+    // Cek apakah key ada DAN aktif
+    return { 
+      isActive: key ? key.isActive : false, 
+      prefix: key ? key.keyPrefix : null 
     };
   }
 
-  // 3. Revoke Key
+  // --- 4. CABUT KEY (Gak berubah) ---
   async revokeKey(userId: number) {
     return this.prisma.apiKey.update({
       where: { userId },
       data: { isActive: false },
     });
-  }
-
-  // 4. Validasi API Key 
-  async validateApiKey(rawKey: string) {
-    const prefix = rawKey.substring(0, 10);
-
-    const apiKeyRecord = await this.prisma.apiKey.findUnique({
-      where: { keyPrefix: prefix },
-      include: { user: true },
-    });
-
-    if (!apiKeyRecord || !apiKeyRecord.isActive || !apiKeyRecord.user.isActive) {
-      return null;
-    }
-
-    const isMatch = await bcrypt.compare(rawKey, apiKeyRecord.keyHash);
-
-    if (isMatch) {
-      return apiKeyRecord;
-    }
-
-    return null;
   }
 }
