@@ -1,28 +1,38 @@
 import { Controller, Post, Get, Put, UseGuards, Request } from '@nestjs/common';
 import { ApiKeysService } from './api-keys.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('ApiKeys')
 @Controller('api-keys')
-@UseGuards(JwtAuthGuard) // wajib login pakai JWT
 export class ApiKeysController {
   constructor(private readonly apiKeysService: ApiKeysService) {}
 
-  // 1. Generate API Key Baru
   @Post('generate')
-  async generate(@Request() req) {
-    // req.user.userId didapat dari JWT Token yang sudah diterjemahkan
-    return this.apiKeysService.generateKey(req.user.userId);
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Generate API Key Baru (Perlu Login)' })
+  async generateKey(@Request() req) {
+    // FIX: Pakai userId (sesuai output JWT Strategy standar)
+    const userId = req.user.userId || req.user.id; 
+    return this.apiKeysService.createKey(userId);
   }
 
-  // 2. Cek Status Key
   @Get('status')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Cek Status API Key User' })
   async getStatus(@Request() req) {
-    return this.apiKeysService.getKeyStatus(req.user.userId);
+    const userId = req.user.userId || req.user.id;
+    return this.apiKeysService.getKeyStatus(userId);
   }
 
-  // 3. Matikan Key (Revoke)
   @Put('revoke')
-  async revoke(@Request() req) {
-    return this.apiKeysService.revokeKey(req.user.userId);
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Matikan API Key' })
+  async revokeKey(@Request() req) {
+    const userId = req.user.userId || req.user.id;
+    return this.apiKeysService.revokeKey(userId);
   }
 }
