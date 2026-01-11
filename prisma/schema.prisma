@@ -1,0 +1,68 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String   // Hashed
+  name      String
+  role      Role     @default(USER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  
+  apiKey    ApiKey?  // One-to-One (1 active key rule)
+  logs      Log[]
+
+  @@map("users")
+}
+
+model ApiKey {
+  id        Int      @id @default(autoincrement())
+  keyPrefix String   @unique // Untuk pencarian cepat
+  keyHash   String   // Untuk verifikasi keamanan
+  userId    Int      @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("products")
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  userId    Int?     // Nullable jika request gagal auth
+  method    String
+  endpoint  String
+  status    Int
+  duration  Int      // ms
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@map("logs")
+}
