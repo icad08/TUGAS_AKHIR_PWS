@@ -26,10 +26,10 @@ async function bootstrap() {
         logger.error('❌ Gagal pasang Swagger', e);
     }
     const port = 3000;
-    await app.listen(port);
-    const url = await app.getUrl();
-    logger.log(`🚀 Application is running on: ${url}`);
-    logger.log(`📄 BUKA INI DI BROWSER: ${url}/api/docs`);
+    await app.listen(port, '0.0.0.0');
+    logger.log(`🚀 Application is running on port: ${port}`);
+    logger.log(`📄 SWAGGER UTAMA: http://localhost:${port}/api/docs`);
+    logger.log(`📄 SWAGGER ALTERNATIF: http://127.0.0.1:${port}/api/docs`);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
