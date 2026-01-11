@@ -16,30 +16,40 @@ exports.ApiKeysController = void 0;
 const common_1 = require("@nestjs/common");
 const api_keys_service_1 = require("./api-keys.service");
 const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
+const swagger_1 = require("@nestjs/swagger");
 let ApiKeysController = class ApiKeysController {
     constructor(apiKeysService) {
         this.apiKeysService = apiKeysService;
     }
-    async generate(req) {
-        return this.apiKeysService.generateKey(req.user.userId);
+    async generateKey(req) {
+        const userId = req.user.userId || req.user.id;
+        return this.apiKeysService.createKey(userId);
     }
     async getStatus(req) {
-        return this.apiKeysService.getKeyStatus(req.user.userId);
+        const userId = req.user.userId || req.user.id;
+        return this.apiKeysService.getKeyStatus(userId);
     }
-    async revoke(req) {
-        return this.apiKeysService.revokeKey(req.user.userId);
+    async revokeKey(req) {
+        const userId = req.user.userId || req.user.id;
+        return this.apiKeysService.revokeKey(userId);
     }
 };
 exports.ApiKeysController = ApiKeysController;
 __decorate([
     (0, common_1.Post)('generate'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Generate API Key Baru (Perlu Login)' }),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], ApiKeysController.prototype, "generate", null);
+], ApiKeysController.prototype, "generateKey", null);
 __decorate([
     (0, common_1.Get)('status'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Cek Status API Key User' }),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -47,14 +57,17 @@ __decorate([
 ], ApiKeysController.prototype, "getStatus", null);
 __decorate([
     (0, common_1.Put)('revoke'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Matikan API Key' }),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], ApiKeysController.prototype, "revoke", null);
+], ApiKeysController.prototype, "revokeKey", null);
 exports.ApiKeysController = ApiKeysController = __decorate([
+    (0, swagger_1.ApiTags)('ApiKeys'),
     (0, common_1.Controller)('api-keys'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __metadata("design:paramtypes", [api_keys_service_1.ApiKeysService])
 ], ApiKeysController);
 //# sourceMappingURL=api-keys.controller.js.map

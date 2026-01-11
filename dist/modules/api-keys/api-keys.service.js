@@ -13,32 +13,48 @@ exports.ApiKeysService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const crypto = require("crypto");
-const bcrypt = require("bcrypt");
 let ApiKeysService = class ApiKeysService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async generateKey(userId) {
-        const rawKey = 'pk_live_' + crypto.randomBytes(24).toString('hex');
-        const hash = await bcrypt.hash(rawKey, 10);
-        const prefix = rawKey.substring(0, 10);
-        await this.prisma.apiKey.upsert({
-            where: { userId },
-            update: { keyHash: hash, keyPrefix: prefix, isActive: true },
-            create: { userId, keyHash: hash, keyPrefix: prefix },
+    async validateApiKey(apiKey) {
+        const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex');
+        const validKey = await this.prisma.apiKey.findFirst({
+            where: {
+                keyHash: keyHash,
+                isActive: true,
+            },
+            include: { user: true }
         });
-        return { apiKey: rawKey };
+        return validKey;
+    }
+    async createKey(userId) {
+        const apiKey = 'pk_live_' + crypto.randomBytes(24).toString('hex');
+        const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex');
+        const keyPrefix = apiKey.substring(0, 15);
+        await this.prisma.apiKey.upsert({
+            where: { userId: userId },
+            update: {
+                keyHash: keyHash,
+                keyPrefix: keyPrefix,
+                isActive: true,
+            },
+            create: {
+                userId: userId,
+                keyHash: keyHash,
+                keyPrefix: keyPrefix,
+                isActive: true,
+            },
+        });
+        return { apiKey };
     }
     async getKeyStatus(userId) {
         const key = await this.prisma.apiKey.findUnique({
             where: { userId },
         });
-        if (!key)
-            return null;
         return {
-            prefix: key.keyPrefix,
-            isActive: key.isActive,
-            createdAt: key.createdAt,
+            isActive: key ? key.isActive : false,
+            prefix: key ? key.keyPrefix : null
         };
     }
     async revokeKey(userId) {
@@ -46,21 +62,6 @@ let ApiKeysService = class ApiKeysService {
             where: { userId },
             data: { isActive: false },
         });
-    }
-    async validateApiKey(rawKey) {
-        const prefix = rawKey.substring(0, 10);
-        const apiKeyRecord = await this.prisma.apiKey.findUnique({
-            where: { keyPrefix: prefix },
-            include: { user: true },
-        });
-        if (!apiKeyRecord || !apiKeyRecord.isActive || !apiKeyRecord.user.isActive) {
-            return null;
-        }
-        const isMatch = await bcrypt.compare(rawKey, apiKeyRecord.keyHash);
-        if (isMatch) {
-            return apiKeyRecord;
-        }
-        return null;
     }
 };
 exports.ApiKeysService = ApiKeysService;
