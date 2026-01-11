@@ -15,7 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductsController = void 0;
 const common_1 = require("@nestjs/common");
 const products_service_1 = require("./products.service");
+const create_product_dto_1 = require("./dto/create-product.dto");
 const product_guard_1 = require("../../common/guards/product.guard");
+const swagger_1 = require("@nestjs/swagger");
 let ProductsController = class ProductsController {
     constructor(productsService) {
         this.productsService = productsService;
@@ -23,12 +25,8 @@ let ProductsController = class ProductsController {
     findAll() {
         return this.productsService.findAll();
     }
-    create(body) {
-        return this.productsService.create({
-            name: body.name,
-            price: body.price,
-            description: body.description,
-        });
+    create(createProductDto) {
+        return this.productsService.create(createProductDto);
     }
     remove(id) {
         return this.productsService.remove(+id);
@@ -37,27 +35,37 @@ let ProductsController = class ProductsController {
 exports.ProductsController = ProductsController;
 __decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(product_guard_1.ProductGuard),
+    (0, swagger_1.ApiSecurity)('x-api-key'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'List Produk (Butuh API Key / Admin)' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(product_guard_1.ProductGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Tambah Produk (Khusus Admin)' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_product_dto_1.CreateProductDto]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "create", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(product_guard_1.ProductGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Hapus Produk' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "remove", null);
 exports.ProductsController = ProductsController = __decorate([
+    (0, swagger_1.ApiTags)('Products'),
     (0, common_1.Controller)('products'),
-    (0, common_1.UseGuards)(product_guard_1.ProductGuard),
     __metadata("design:paramtypes", [products_service_1.ProductsService])
 ], ProductsController);
 //# sourceMappingURL=products.controller.js.map
