@@ -1,75 +1,143 @@
-☕ Kopi API Service (Open API Platform)
-Kopi API Service adalah layanan backend RESTful yang dirancang sebagai platform Open API. Sistem ini memungkinkan pengembang (developer) untuk mendaftar, mendapatkan API Key secara mandiri, dan mengakses data produk kopi secara aman.
+# ☕ Coffee API Service (Fullstack)
 
-Dibangun dengan arsitektur modern menggunakan NestJS, sistem ini menerapkan standar keamanan ganda (Dual Guard System) menggunakan JWT untuk manajemen user dan API Key untuk akses data publik.
+Aplikasi Fullstack modern untuk manajemen data Coffee Shop dan Produk, dilengkapi dengan Developer Console untuk mengelola API Key. Project ini dibangun menggunakan arsitektur Client-Server yang terpisah.
 
-🌟 Fitur Utama
-1. Authentication & Security
-User Registration & Login: Sistem autentikasi berbasis JWT (JSON Web Token).
-Password Hashing: Keamanan password menggunakan bcrypt.
-Secure API Key Storage: API Key disimpan dalam bentuk hash (SHA-256) di database, hanya prefix dan key asli yang ditampilkan sekali saat generate (seperti standar AWS/Stripe).
+![Project Status](https://img.shields.io/badge/status-active-success.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-2. Developer Dashboard (API Management)
-Generate API Key: User dapat membuat API Key sendiri setelah login.
-Auto-Revoke & Upsert: Logika cerdas dimana satu user hanya boleh memiliki satu kunci aktif (menggunakan metode upsert).
-Key Status: Cek status aktif/non-aktif kunci.
+## 🚀 Tech Stack
 
-3. Product Management
-CRUD Operations: Create, Read, Update, Delete data produk.
-Public Access Protection: Endpoint produk dilindungi oleh Guard yang memvalidasi x-api-key di header.
+### Backend (Server)
+* **Framework:** [NestJS](https://nestjs.com/) (Node.js)
+* **Database:** MySQL
+* **ORM:** Prisma
+* **Auth:** JWT (JSON Web Token) & Passport
+* **Docs:** Swagger UI
 
-4. Interactive Documentation
-Swagger UI (OpenAPI 3.0): Dokumentasi otomatis yang interaktif. Mendukung fitur "Try it out" dengan otorisasi ganda (Bearer Token & API Key).
+### Frontend (Client)
+* **Framework:** React (Vite)
+* **Styling:** Tailwind CSS
+* **Routing:** React Router DOM
+* **Icons:** Lucide React
+* **HTTP Client:** Axios
+* **Utils:** JWT Decode
 
-🛠️ Tech Stack
-Framework: NestJS (Node.js)
-Language: TypeScript
-Database: MySQL
-ORM: Prisma
-Documentation: NestJS Swagger
-Environment: Node.js v16+
+---
 
-🚀 Instalasi & Setup
-Ikuti langkah-langkah ini untuk menjalankan project di lokal:
+## 🔥 Fitur Utama
 
-1. Clone Repository (git clone https://github.com/icad08/TUGAS_AKHIR_PWS.git)
+### 1. Otentikasi & Keamanan
+* **Register & Login:** User bisa mendaftar dan login untuk mendapatkan Access Token.
+* **Role Identification:** Sistem mendeteksi apakah user adalah Admin atau User biasa.
+* **Protected Routes:** Halaman Dashboard tidak bisa diakses tanpa login.
+* **Auto Logout:** Fitur logout aman yang menghapus token.
 
-2. Install Dependencies
+### 2. Dashboard & Statistik
+* **Real-time Stats:** Menampilkan jumlah total request (Total Data Entitas) yang diambil langsung dari Database.
+* **Dynamic Profile:** Menampilkan nama user dan role (Admin/User) yang sedang login.
+* **Status Server:** Indikator status operasional server.
+
+### 3. Manajemen Data (CRUD)
+* **Browse Coffee:** Melihat daftar mitra Coffee Shop dan menu andalannya.
+* **Swagger Interface:** Menambah, mengedit, dan menghapus data Toko & Produk via Swagger UI.
+
+### 4. Developer Tools
+* **API Credentials:** User bisa men-generate `x-api-key` rahasia untuk keperluan integrasi.
+* **Integration Guide:** Dokumentasi lengkap cara penggunaan API untuk pihak ketiga.
+
+---
+
+## 🛠️ Cara Install & Menjalankan
+
+Ikuti langkah ini secara berurutan agar aplikasi berjalan lancar.
+
+### Prasyarat
+* Node.js (v18+)
+* MySQL Server (XAMPP/Laragon/Docker)
+
+### 1. Setup Backend
+Masuk ke folder backend dan install dependencies.
+
+```bash
+cd backend
 npm install
+Konfigurasi Database:
 
-3. Konfigurasi Environment
-Buat file .env di root folder dan sesuaikan dengan konfigurasi database kamu:
+Buat file .env di dalam folder backend.
+
+Isi dengan konfigurasi berikut:
 
 Cuplikan kode
-# Database Connection (MySQL)
-DATABASE_URL="mysql://root:password@localhost:3306/tugasakhir_pwsdb"
 
-# JWT Secret (Bebas, contoh: rahasia123)
-JWT_SECRET="kunci_rahasia_skripsi_aman_jaya"
-4. Database Migration (Prisma)
-Jalankan perintah ini untuk membuat tabel di database MySQL secara otomatis:
+DATABASE_URL="mysql://root:@localhost:3306/kopi_db"
+JWT_SECRET="rahasia_negara_api"
+Pastikan database kopi_db sudah dibuat di MySQL.
+
+Migrasi Database: Push skema Prisma ke database MySQL.
+
 Bash
+
 npx prisma migrate dev --name init
+Jalankan Server:
 
-5. Jalankan Server
 Bash
+
 npm run start:dev
-Tunggu hingga muncul pesan: 🚀 Application is running on: http://localhost:3000
+Backend akan berjalan di: http://localhost:3000
 
-📖 Dokumentasi API (Swagger)
-Akses dokumentasi lengkap dan lakukan pengujian endpoint langsung di browser:
+2. Setup Frontend
+Buka terminal baru, masuk ke folder frontend.
 
-👉 http://localhost:3000/api/docs (Atau http://127.0.0.1:3000/api/docs jika localhost bermasalah)
+Bash
 
-Cara Menggunakan Swagger:
-Register: Buat akun di POST /auth/register.
-Login: Masuk di POST /auth/login dan copy access_token.
-Authorize: Klik tombol gembok 🔓 di atas, masukkan token (tanpa prefix Bearer).
-Generate Key: Panggil POST /api-keys/generate untuk mendapatkan API Key (pk_live_...).
-Akses Data: Gunakan API Key tersebut pada header x-api-key untuk mengakses GET /products.
+cd frontend
+npm install
+Jalankan Client:
 
-🔒 Arsitektur Keamanan (Security Flow)
-Sistem ini menggunakan dua layer keamanan (Guards) yang berbeda sesuai fungsinya:
-Guard	Tipe	Digunakan di	Deskripsi
-JwtAuthGuard	Bearer Token	Dashboard, Profile, Key Management	Memastikan yang mengakses adalah User yang sudah login.
-ProductGuard	API Key	Public Data (Products)	Memvalidasi apakah Client mengirimkan x-api-key yang valid dan aktif di database.
+Bash
+
+npm run dev
+Frontend akan berjalan di: http://localhost:5173
+
+📚 Dokumentasi API (Swagger)
+Backend menyediakan dokumentasi interaktif untuk testing API.
+
+URL: http://localhost:3000/docs
+
+Prefix API: Semua endpoint API memiliki prefix /api (contoh: /api/products).
+
+Akun Demo (Jika sudah dibuat):
+
+Email: admin@kopi.com
+
+Password: admin12345
+
+📂 Struktur Project
+root/
+├── backend/                # Server Side (NestJS)
+│   ├── src/
+│   │   ├── auth/           # Login & Register Logic
+│   │   ├── coffee-shops/   # CRUD Toko Kopi
+│   │   ├── products/       # CRUD Menu Kopi
+│   │   ├── dashboard/      # Statistik Dashboard
+│   │   └── api-keys/       # Logic API Key Generator
+│   └── prisma/             # Schema Database
+│
+└── frontend/               # Client Side (React)
+    ├── src/
+    │   ├── components/     # Sidebar, PrivateRoute
+    │   ├── pages/          # Login, Register, Dashboard, Browse, Docs
+    │   └── App.jsx         # Routing Configuration
+
+
+🧪 Cara Testing Flow Aplikasi
+Buka Frontend (localhost:5173).
+Klik Register, buat akun baru.
+Login menggunakan akun tersebut.
+Anda akan diarahkan ke Dashboard. Lihat statistik total data.
+Buka Swagger (localhost:3000/docs), login (Authorize) dengan token user.
+Gunakan endpoint POST /coffee-shops atau POST /products untuk menambah data.
+Refresh halaman Dashboard di Frontend, angka statistik akan bertambah otomatis.
+Buka menu Browse Coffee untuk melihat hasil input data.
+
+Happy Coding! ☕
