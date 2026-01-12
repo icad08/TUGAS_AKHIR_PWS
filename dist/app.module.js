@@ -13,6 +13,8 @@ const users_module_1 = require("./modules/users/users.module");
 const auth_module_1 = require("./modules/auth/auth.module");
 const api_keys_module_1 = require("./modules/api-keys/api-keys.module");
 const products_module_1 = require("./modules/products/products.module");
+const coffee_shops_module_1 = require("./modules/coffee-shops/coffee-shops.module");
+const dashboard_module_1 = require("./dashboard/dashboard.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -24,6 +26,8 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             api_keys_module_1.ApiKeysModule,
             products_module_1.ProductsModule,
+            coffee_shops_module_1.CoffeeShopsModule,
+            dashboard_module_1.DashboardModule,
         ],
         controllers: [],
         providers: [],

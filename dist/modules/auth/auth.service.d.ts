@@ -13,6 +13,7 @@ export declare class AuthService {
         role: import(".prisma/client").$Enums.Role;
         isActive: boolean;
         createdAt: Date;
+        updatedAt: Date;
     }>;
     login(loginDto: LoginDto): Promise<{
         message: string;

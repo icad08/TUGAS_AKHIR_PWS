@@ -20,6 +20,7 @@ model User {
   role      Role     @default(USER)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   
   apiKey    ApiKey?  // One-to-One (1 active key rule)
   logs      Log[]
@@ -40,6 +41,21 @@ model ApiKey {
   @@map("api_keys")
 }
 
+// --- TABEL BARU: COFFEE SHOP ---
+model CoffeeShop {
+  id          Int      @id @default(autoincrement())
+  name        String
+  address     String   @db.Text
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relasi: Satu toko punya banyak produk
+  products    Product[]
+
+  @@map("coffee_shops")
+}
+
 model Product {
   id          Int      @id @default(autoincrement())
   name        String
@@ -48,6 +64,10 @@ model Product {
   stock       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Relasi: Produk ini milik toko mana? (Optional dulu biar data lama aman)
+  coffeeShopId Int?
+  coffeeShop   CoffeeShop? @relation(fields: [coffeeShopId], references: [id], onDelete: SetNull)
 
   @@map("products")
 }

@@ -28,7 +28,7 @@ export class AuthService {
       name: registerDto.name,
       email: registerDto.email,
       password: hashedPassword,
-      role: 'USER', // Default user biasa
+      role: 'USER', 
     });
 
     // Hapus password dari return response agar aman
@@ -56,6 +56,8 @@ export class AuthService {
         id: user.id,
         name: user.name,
         role: user.role,
+        name: user.name, 
+      role: user.role
       }
     };
   }

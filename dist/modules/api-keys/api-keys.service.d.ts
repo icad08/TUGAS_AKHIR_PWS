@@ -4,21 +4,22 @@ export declare class ApiKeysService {
     constructor(prisma: PrismaService);
     validateApiKey(apiKey: string): Promise<{
         user: {
-            id: number;
-            isActive: boolean;
-            createdAt: Date;
             name: string;
+            id: number;
             email: string;
             password: string;
             role: import(".prisma/client").$Enums.Role;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
         };
     } & {
         id: number;
+        isActive: boolean;
+        createdAt: Date;
         keyPrefix: string;
         keyHash: string;
         userId: number;
-        isActive: boolean;
-        createdAt: Date;
     }>;
     createKey(userId: number): Promise<{
         apiKey: string;
@@ -29,10 +30,10 @@ export declare class ApiKeysService {
     }>;
     revokeKey(userId: number): Promise<{
         id: number;
+        isActive: boolean;
+        createdAt: Date;
         keyPrefix: string;
         keyHash: string;
         userId: number;
-        isActive: boolean;
-        createdAt: Date;
     }>;
 }

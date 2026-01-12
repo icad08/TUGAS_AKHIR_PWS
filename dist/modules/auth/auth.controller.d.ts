@@ -11,6 +11,7 @@ export declare class AuthController {
         role: import(".prisma/client").$Enums.Role;
         isActive: boolean;
         createdAt: Date;
+        updatedAt: Date;
     }>;
     login(loginDto: LoginDto): Promise<{
         message: string;

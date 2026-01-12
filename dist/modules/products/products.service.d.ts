@@ -7,27 +7,30 @@ export declare class ProductsService {
         name: string;
         id: number;
         createdAt: Date;
+        updatedAt: Date;
         description: string | null;
         price: Prisma.Decimal;
         stock: number;
-        updatedAt: Date;
+        coffeeShopId: number | null;
     }[]>;
     create(data: Prisma.ProductCreateInput): Promise<{
         name: string;
         id: number;
         createdAt: Date;
+        updatedAt: Date;
         description: string | null;
         price: Prisma.Decimal;
         stock: number;
-        updatedAt: Date;
+        coffeeShopId: number | null;
     }>;
     remove(id: number): Promise<{
         name: string;
         id: number;
         createdAt: Date;
+        updatedAt: Date;
         description: string | null;
         price: Prisma.Decimal;
         stock: number;
-        updatedAt: Date;
+        coffeeShopId: number | null;
     }>;
 }

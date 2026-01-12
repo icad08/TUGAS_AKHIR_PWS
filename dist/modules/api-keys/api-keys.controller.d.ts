@@ -11,10 +11,10 @@ export declare class ApiKeysController {
     }>;
     revokeKey(req: any): Promise<{
         id: number;
+        isActive: boolean;
+        createdAt: Date;
         keyPrefix: string;
         keyHash: string;
         userId: number;
-        isActive: boolean;
-        createdAt: Date;
     }>;
 }

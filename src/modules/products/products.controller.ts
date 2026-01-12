@@ -1,35 +1,45 @@
 import { Controller, Get, Post, Body, Param, Delete, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
-import { ProductGuard } from '../../common/guards/product.guard'; // Pastikan path ini bener
-import { ApiTags, ApiSecurity, ApiBearerAuth, ApiOperation } from '@nestjs/swagger'; // <--- 1. IMPORT INI
+import { ApiTags, ApiSecurity, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+
+// --- IMPORT SECURITY ---
+import { Role } from '@prisma/client'; 
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'; 
+import { ProductGuard } from '../../common/guards/product.guard'; 
+import { RolesGuard } from '../../common/guards/roles.guard'; 
+import { Roles } from '../../common/decorators/roles.decorator'; 
 
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  // 1. GET: Tetap pakai API Key (Biar User/Apps lain bisa baca data)
   @Get()
-  @UseGuards(ProductGuard)
-  @ApiSecurity('x-api-key') // <--- 2. INI PENTING! Biar Swagger bawa API Key kamu
-  @ApiBearerAuth()          // <--- Ini biar dia juga support Token (opsional)
-  @ApiOperation({ summary: 'List Produk (Butuh API Key / Admin)' })
+  @UseGuards(ProductGuard) 
+  @ApiSecurity('x-api-key') 
+  @ApiOperation({ summary: 'List Produk (Public - Butuh API Key)' })
   findAll() {
     return this.productsService.findAll();
   }
 
+  // 2. POST: Dijaga Satpam ADMIN (Harus Login & Role = ADMIN)
   @Post()
-  @UseGuards(ProductGuard)
-  @ApiBearerAuth() // Kalau create biasanya butuh Admin (Token)
-  @ApiOperation({ summary: 'Tambah Produk (Khusus Admin)' })
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(Role.ADMIN)                  
+  @ApiBearerAuth()                   
+  @ApiOperation({ summary: 'Tambah Produk (ADMIN ONLY)' })
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
+  // 3. DELETE: Dijaga Satpam ADMIN juga
   @Delete(':id')
-  @UseGuards(ProductGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)                   
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Hapus Produk' })
+  @ApiOperation({ summary: 'Hapus Produk (ADMIN ONLY)' })
   remove(@Param('id') id: string) {
     return this.productsService.remove(+id);
   }

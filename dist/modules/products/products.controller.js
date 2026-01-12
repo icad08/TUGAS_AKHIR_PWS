@@ -16,8 +16,12 @@ exports.ProductsController = void 0;
 const common_1 = require("@nestjs/common");
 const products_service_1 = require("./products.service");
 const create_product_dto_1 = require("./dto/create-product.dto");
-const product_guard_1 = require("../../common/guards/product.guard");
 const swagger_1 = require("@nestjs/swagger");
+const client_1 = require("@prisma/client");
+const jwt_auth_guard_1 = require("../../common/guards/jwt-auth.guard");
+const product_guard_1 = require("../../common/guards/product.guard");
+const roles_guard_1 = require("../../common/guards/roles.guard");
+const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 let ProductsController = class ProductsController {
     constructor(productsService) {
         this.productsService = productsService;
@@ -37,17 +41,17 @@ __decorate([
     (0, common_1.Get)(),
     (0, common_1.UseGuards)(product_guard_1.ProductGuard),
     (0, swagger_1.ApiSecurity)('x-api-key'),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'List Produk (Butuh API Key / Admin)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'List Produk (Public - Butuh API Key)' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseGuards)(product_guard_1.ProductGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Tambah Produk (Khusus Admin)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Tambah Produk (ADMIN ONLY)' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_product_dto_1.CreateProductDto]),
@@ -55,9 +59,10 @@ __decorate([
 ], ProductsController.prototype, "create", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    (0, common_1.UseGuards)(product_guard_1.ProductGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Hapus Produk' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Hapus Produk (ADMIN ONLY)' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
