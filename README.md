@@ -69,9 +69,9 @@ Isi dengan konfigurasi berikut:
 
 Cuplikan kode
 
-DATABASE_URL="mysql://root:@localhost:3306/kopi_db"
-JWT_SECRET="rahasia_negara_api"
-Pastikan database kopi_db sudah dibuat di MySQL.
+DATABASE_URL="mysql://root:@localhost:3306/tugasakhir_pwsdb"
+JWT_SECRET="rahasia_negara_tugas_akhir_2026"
+
 
 Migrasi Database: Push skema Prisma ke database MySQL.
 
@@ -106,7 +106,7 @@ URL: http://localhost:3000/docs
 
 Prefix API: Semua endpoint API memiliki prefix /api (contoh: /api/products).
 
-Akun Demo (Jika sudah dibuat):
+Akun Demo :
 
 Email: admin@kopi.com
 
