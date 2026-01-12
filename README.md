@@ -42,7 +42,7 @@ Buat file .env di root folder dan sesuaikan dengan konfigurasi database kamu:
 
 Cuplikan kode
 # Database Connection (MySQL)
-DATABASE_URL="mysql://root:password@localhost:3306/kopi_db"
+DATABASE_URL="mysql://root:password@localhost:3306/tugasakhir_pwsdb"
 
 # JWT Secret (Bebas, contoh: rahasia123)
 JWT_SECRET="kunci_rahasia_skripsi_aman_jaya"
@@ -67,4 +67,9 @@ Login: Masuk di POST /auth/login dan copy access_token.
 Authorize: Klik tombol gembok 🔓 di atas, masukkan token (tanpa prefix Bearer).
 Generate Key: Panggil POST /api-keys/generate untuk mendapatkan API Key (pk_live_...).
 Akses Data: Gunakan API Key tersebut pada header x-api-key untuk mengakses GET /products.
-   
+
+🔒 Arsitektur Keamanan (Security Flow)
+Sistem ini menggunakan dua layer keamanan (Guards) yang berbeda sesuai fungsinya:
+Guard	Tipe	Digunakan di	Deskripsi
+JwtAuthGuard	Bearer Token	Dashboard, Profile, Key Management	Memastikan yang mengakses adalah User yang sudah login.
+ProductGuard	API Key	Public Data (Products)	Memvalidasi apakah Client mengirimkan x-api-key yang valid dan aktif di database.
